@@ -79,7 +79,10 @@ class _CarouselPageState extends State<CarouselPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  print("Clicked");
+                  Navigator.pushNamed(context, '/login');
+                },
                 child: Container(
                   width: MediaQuery.of(context).size.width * .4,
                   height: 50,
