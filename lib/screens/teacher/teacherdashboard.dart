@@ -170,7 +170,9 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
+            print(index);
             _currentIndex = index;
+            _handleNavigation(index);
           });
         },
         items: const [
@@ -183,13 +185,49 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
             label: 'Notifications',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.logout),
+            label: 'Log Out',
           ),
         ],
       ),
       floatingActionButton: null,
     );
+  }
+
+  Future<void> _logOut() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    // Perform additional log out functionality if needed
+    // For example, navigate to the login screen
+  }
+
+  void _handleNavigation(index) {
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, "/teacher");
+        break;
+      case 1:
+      case 2:
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Confirmation'),
+            content: const Text('You will be logged out'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => {_logOut(), Navigator.pushNamed(context, "/")},
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        //
+        break;
+    }
   }
 
   Widget _buildOptionCard({
