@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,46 +28,74 @@ class _LoginState extends State<Login> {
         child: CircularProgressIndicator(),
       ),
     );
-    // Make an HTTP request to your server's login endpoint
-    final Uri loginUri =
-        Uri.parse('http://192.168.0.113:4001/api/v1/auth/login');
-    final http.Response response = await http.post(loginUri, body: {
-      'userId': userID,
-      'password': password,
-    });
-    setState(() {
-      isLoading = true;
-    });
-    Navigator.pop(context);
-    if (response.statusCode == 200) {
-      print("success");
-      // Login successful
-      // Store the login information locally using shared_preferences
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userID', userID);
-      await prefs.setString('password', password);
+    try {
+      final Uri loginUri =
+          Uri.parse('http://192.168.0.113:4001/api/v1/auth/login');
+      final http.Response response = await http.post(loginUri, body: {
+        'userId': userID,
+        'password': password,
+      });
+      setState(() {
+        isLoading = true;
+      });
+      Navigator.pop(context);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // Extract the role from the response data
+        final String role = responseData['user']['role'];
+        final String email = responseData['user']['email'];
+
+        // print('Role: $role');
+        //print("success");
+        // Login successful
+        // Store the login information locally using shared_preferences
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userID', userID);
+        await prefs.setString('role', role);
+
+        await prefs.setString('email', email);
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Login Successful'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        if (role == "teacher") {
+          Navigator.pushNamed(context, "/teacher");
+        }
+        // Navigate to the home screen or the next screen
+        //  Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // Login failed
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Login Failed'),
+            content: const Text('Invalid userID or password'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (error) {
+      Navigator.pop(context);
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Login Successful'),
-          content: const Text('Invalid userID or password'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      // Navigate to the home screen or the next screen
-      //  Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      // Login failed
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Login Failed'),
-          content: const Text('Invalid userID or password'),
+          title: const Text('Server Error'),
+          content: const Text('Server not responding'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -75,6 +105,7 @@ class _LoginState extends State<Login> {
         ),
       );
     }
+    // Make an HTTP request to your server's login endpoint
   }
 
   @override

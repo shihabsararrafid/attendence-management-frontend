@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './screens/login.dart';
 import './screens/carousel.dart';
 import "./screens/register.dart";
+import "./screens/teacher//teacherdashboard.dart";
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,8 @@ class MyApp extends StatelessWidget {
       routes: {
         "/": (context) => CarouselPage(),
         "/login": (context) => Login(),
-        "signup": (context) => RegisterPage(),
+        "/register": (context) => RegisterPage(),
+        "/teacher": (context) => TeacherDashBoard()
       },
       title: 'Flutter Demo',
       theme: ThemeData(

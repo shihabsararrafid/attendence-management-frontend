@@ -80,7 +80,6 @@ class _CarouselPageState extends State<CarouselPage> {
             children: [
               GestureDetector(
                 onTap: () {
-                  print("Clicked");
                   Navigator.pushNamed(context, '/login');
                 },
                 child: Container(
@@ -104,7 +103,9 @@ class _CarouselPageState extends State<CarouselPage> {
                 width: 10,
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, '/register');
+                },
                 child: Container(
                   width: MediaQuery.of(context).size.width * .4,
                   height: 50,
