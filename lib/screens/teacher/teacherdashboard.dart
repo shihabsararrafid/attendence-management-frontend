@@ -119,19 +119,21 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                         },
                       ),
                       _buildOptionCard(
-                        icon: Icons.add,
-                        label: 'Add Courses',
+                        icon: Icons.class_,
+                        label: 'Add Classes',
                         color: Colors.purple,
                         onPressed: () {
+                          Navigator.pushNamed(context, "/teacher/addClass");
                           // Add your logic for "Add Courses" option
                         },
                       ),
                       _buildOptionCard(
-                        icon: Icons.add,
-                        label: 'Add Students',
-                        color: Colors.teal,
+                        icon: Icons.school,
+                        label: 'All Classes',
+                        color: Colors.blue,
                         onPressed: () {
-                          // Add your logic for "Add Students" option
+                          Navigator.pushNamed(context, "/teacher/allClasses");
+                          // Add your logic for "Add Courses" option
                         },
                       ),
                       _buildOptionCard(
@@ -151,8 +153,8 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                         },
                       ),
                       _buildOptionCard(
-                        icon: Icons.import_export,
-                        label: 'Export/Import Data',
+                        icon: Icons.qr_code,
+                        label: 'Generate Qr Code',
                         color: Colors.cyan,
                         onPressed: () {
                           // Add your logic for "Export/Import Data" option

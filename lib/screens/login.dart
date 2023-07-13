@@ -39,22 +39,17 @@ class _LoginState extends State<Login> {
         isLoading = true;
       });
       Navigator.pop(context);
-
+      print(response.statusCode);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
 
-        // Extract the role from the response data
         final String role = responseData['user']['role'];
         final String email = responseData['user']['email'];
-
-        // print('Role: $role');
-        //print("success");
-        // Login successful
-        // Store the login information locally using shared_preferences
+        final String _id = responseData['user']['_id'];
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('userID', userID);
         await prefs.setString('role', role);
-
+        await prefs.setString('id', _id);
         await prefs.setString('email', email);
         await showDialog(
           context: context,
@@ -90,6 +85,7 @@ class _LoginState extends State<Login> {
         );
       }
     } catch (error) {
+      print(error);
       Navigator.pop(context);
       showDialog(
         context: context,
