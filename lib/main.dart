@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         "/teacher": (context) => TeacherDashBoard(),
         "/teacher/allClasses": (context) => AllClasses(),
         "/teacher/addClass": (context) => AddClass(),
-        "/teacher/takeattendence": (context) => TakeAttendence()
+        "/teacher/takeattendence": (context) => AttendanceScreen()
       },
       title: 'Flutter Demo',
       theme: ThemeData(
