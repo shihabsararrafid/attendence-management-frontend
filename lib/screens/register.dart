@@ -109,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     width: 40,
                     child: DecoratedBox(
                         decoration:
-                            const BoxDecoration(color: const Color(0xFFD5E0FE)),
+                            const BoxDecoration(color: const Color(0xFFF1F3F5)),
                         child: Center(
                             child: GestureDetector(
                           onTap: () => {Navigator.pop(context)},
@@ -141,10 +141,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: emailController,
                 decoration: InputDecoration(
                     filled: true, //<-- SEE HERE
-                    fillColor: const Color(0xFFD5E0FE),
+                    fillColor: const Color(0xFFF1F3F5),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                            width: 0, color: Color(0xFFD5E0FE)),
+                            width: 0, color: Color(0xFFF1F3F5)),
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -160,10 +160,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: userIDController,
                 decoration: InputDecoration(
                     filled: true, //<-- SEE HERE
-                    fillColor: const Color(0xFFD5E0FE),
+                    fillColor: const Color(0xFFF1F3F5),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                            width: 0, color: Color(0xFFD5E0FE)),
+                            width: 0, color: Color(0xFFF1F3F5)),
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -180,10 +180,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: passwordController,
                 decoration: InputDecoration(
                     filled: true, //<-- SEE HERE
-                    fillColor: const Color(0xFFD5E0FE),
+                    fillColor: const Color(0xFFF1F3F5),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                            width: 0, color: Color(0xFFD5E0FE)),
+                            width: 0, color: Color(0xFFF1F3F5)),
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -204,15 +204,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                            width: 0, color: Color(0xFFD5E0FE)),
+                            width: 0, color: Color(0xFFF1F3F5)),
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(width: 0, color: Color(0xFFD5E0FE)),
+                          const BorderSide(width: 0, color: Color(0xFFF1F3F5)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     filled: true, //<-- SEE HERE
-                    fillColor: const Color(0xFFD5E0FE),
+                    fillColor: const Color(0xFFF1F3F5),
                   ),
                   value: selectedRole,
                   items: [

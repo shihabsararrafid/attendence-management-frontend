@@ -31,7 +31,7 @@ class _AllClassesState extends State<AllClasses> {
   String? email = "none";
   String? id = "none";
   List<Course> courseList = [];
-
+  List<Course> filteredList = [];
   TextEditingController _searchController = TextEditingController();
   late Future<List<Course>> _allClassesFuture;
 
@@ -51,6 +51,7 @@ class _AllClassesState extends State<AllClasses> {
       var data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
+        List<Course> TempCourse = [];
         for (var courseData in data['courses']) {
           Course course = Course(
             id: courseData['_id'],
@@ -58,8 +59,11 @@ class _AllClassesState extends State<AllClasses> {
             section: courseData['section'],
             batchName: courseData['batchName'],
           );
-          courseList.add(course);
+          setState(() {
+            courseList.add(course);
+          });
         }
+        filteredList = courseList;
         print(courseList.length);
         return courseList;
       } else {
@@ -102,28 +106,34 @@ class _AllClassesState extends State<AllClasses> {
     _allClassesFuture = _allClasses();
   }
 
-  List<Course> filteredList = [];
-
   void filterClasses(String query) {
-    print(query);
-    filteredList = courseList
+    List<Course> tmp = [];
+    // print(query);
+    tmp = courseList
         .where((course) =>
             course.code.toLowerCase().contains(query.toLowerCase()) ||
             course.section.toLowerCase().contains(query.toLowerCase()) ||
             course.batchName.toLowerCase().contains(query.toLowerCase()))
         .toList();
-
+    //print(filteredList.length);
     setState(() {
-      courseList = filteredList;
-      // Update the filtered list
-      // You can use this filteredList to display the filtered data in your UI
+      filteredList = tmp;
     });
+    // if (query == "") {
+    //   filteredList = courseList;
+    // }
+    // setState(() {
+    //   courseList = filteredList;
+    //   // Update the filtered list
+    //   // You can use this filteredList to display the filtered data in your UI
+    // });
   }
 
-  Future<void> deleteIt(String courseId) async {
+  Future<void> deleteCourse(courseId) async {
     final Uri deleteUri =
-        Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/$courseId');
-    final http.Response response = await http.delete(deleteUri);
+        Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/$id');
+    final http.Response response =
+        await http.delete(deleteUri, body: {"courseId": courseId});
 
     if (response.statusCode == 200) {
       setState(() {
@@ -131,18 +141,76 @@ class _AllClassesState extends State<AllClasses> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Course deleted successfully'),
+          backgroundColor: Colors.green,
+          content: Row(
+            children: [
+              Icon(
+                Icons.check,
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text('Course deleted successfully'),
+            ],
+          ),
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to delete course'),
+          backgroundColor: Colors.red,
+          content: Row(
+            children: [
+              Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text('Failed to delete course'),
+            ],
+          ),
         ),
       );
     }
   }
 
+  Future<void> deleteIt(String courseId) async {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Center(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Warning',
+              style: TextStyle(color: Colors.red),
+            ),
+            Icon(
+              Icons.warning,
+              color: Colors.red,
+            )
+          ],
+        )),
+        content: const Text("Are you sure to delete this course?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => {Navigator.pop(context), deleteCourse(courseId)},
+            child: const Text('Ok'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  FocusNode _searchFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,21 +225,29 @@ class _AllClassesState extends State<AllClasses> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 30),
-              TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  // Call a function to filter the courseList based on the search query
-                  filterClasses(value);
-                },
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  hintText: "Search",
-                  filled: true, //<-- SEE HERE
-                  fillColor: const Color(0xFFF1F3F5),
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          width: 0, color: Color.fromARGB(255, 200, 209, 230)),
-                      borderRadius: BorderRadius.circular(10)),
+              GestureDetector(
+                onTap: () => {FocusScope.of(context).unfocus()}, //,
+                child: TextField(
+                  focusNode: _searchFocusNode,
+                  controller: _searchController,
+                  onChanged: (value) {
+                    // Call a function to filter the courseList based on the search query
+                    filterClasses(value);
+                  },
+                  onTap: () {
+                    _searchFocusNode.requestFocus(); // Request focus on tap
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    hintText: "Search",
+                    filled: true, //<-- SEE HERE
+                    fillColor: const Color(0xFFF1F3F5),
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                            width: 0,
+                            color: Color.fromARGB(255, 200, 209, 230)),
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ),
               SizedBox(height: 30),
@@ -184,7 +260,7 @@ class _AllClassesState extends State<AllClasses> {
                         return ShimmerLoadingTable();
                       } else if (snapshot.hasData) {
                         return BlueDataTable(
-                          courseList: snapshot.data!,
+                          courseList: filteredList,
                           deleteCallback: deleteIt,
                         );
                       } else if (snapshot.hasError) {
@@ -326,7 +402,14 @@ class BlueDataTable extends StatelessWidget {
                 child: Center(
                   child: Row(
                     children: [
-                      Icon(Icons.arrow_forward, color: Colors.blue),
+                      InkWell(
+                          onTap: () => {
+                                Navigator.pushNamed(
+                                    context, "/teacher/takeattendence",
+                                    arguments: course.id),
+                                print("Icon CLicked")
+                              },
+                          child: Icon(Icons.arrow_forward, color: Colors.blue)),
                       Text(course.code),
                     ],
                   ),

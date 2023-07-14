@@ -5,6 +5,7 @@ import "./screens/register.dart";
 import "./screens/teacher//teacherdashboard.dart";
 import "./screens/teacher/allclasses.dart";
 import "./screens/teacher/addClass.dart";
+import "./screens/teacher/takeAttendence.dart";
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         "/teacher": (context) => TeacherDashBoard(),
         "/teacher/allClasses": (context) => AllClasses(),
         "/teacher/addClass": (context) => AddClass(),
+        "/teacher/takeattendence": (context) => TakeAttendence()
       },
       title: 'Flutter Demo',
       theme: ThemeData(

@@ -124,7 +124,7 @@ class _LoginState extends State<Login> {
                     width: 40,
                     child: DecoratedBox(
                         decoration:
-                            const BoxDecoration(color: const Color(0xFFD5E0FE)),
+                            const BoxDecoration(color: const Color(0xFFF1F3F5)),
                         child: Center(
                             child: GestureDetector(
                           onTap: () => {Navigator.pop(context)},
@@ -156,10 +156,10 @@ class _LoginState extends State<Login> {
                 controller: userIDController,
                 decoration: InputDecoration(
                     filled: true, //<-- SEE HERE
-                    fillColor: const Color(0xFFD5E0FE),
+                    fillColor: const Color(0xFFF1F3F5),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                            width: 0, color: Color(0xFFD5E0FE)),
+                            width: 0, color: Color(0xFFF1F3F5)),
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -176,10 +176,10 @@ class _LoginState extends State<Login> {
                 controller: passwordController,
                 decoration: InputDecoration(
                     filled: true, //<-- SEE HERE
-                    fillColor: const Color(0xFFD5E0FE),
+                    fillColor: const Color(0xFFF1F3F5),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                            width: 0, color: Color(0xFFD5E0FE)),
+                            width: 0, color: Color(0xFFF1F3F5)),
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
