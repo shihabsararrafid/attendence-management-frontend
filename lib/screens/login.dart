@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
     );
     try {
       final Uri loginUri =
-          Uri.parse('http://192.168.0.113:4001/api/v1/auth/login');
+          Uri.parse('http://192.168.43.173:4001/api/v1/auth/login');
       final http.Response response = await http.post(loginUri, body: {
         'userId': userID,
         'password': password,
@@ -90,8 +90,15 @@ class _LoginState extends State<Login> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Server Error'),
-          content: const Text('Server not responding'),
+          title: const Text(
+            'Server Error',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          content: Text('$error'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
