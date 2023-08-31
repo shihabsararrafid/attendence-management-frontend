@@ -67,6 +67,19 @@ class _AllClassesState extends State<AllClasses> {
         print(courseList.length);
         return courseList;
       } else {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text("Server Error"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
         throw Exception("Failed to Load Data");
       }
     } catch (error) {

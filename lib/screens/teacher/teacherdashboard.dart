@@ -92,6 +92,8 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                         color: Colors.orange,
                         onPressed: () {
                           // Add your logic for "View Attendance" option
+                          Navigator.pushNamed(context, "/teacher/view",
+                              arguments: userID);
                         },
                       ),
                       _buildOptionCard(
@@ -99,17 +101,20 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                         label: 'Mark Attendance',
                         color: Colors.blue,
                         onPressed: () {
+                          Navigator.pushNamed(context, "/teacher/allClasses");
+                          // Add your logic for "Add Courses" option
+
                           // Add your logic for "Mark Attendance" option
                         },
                       ),
-                      _buildOptionCard(
-                        icon: Icons.edit,
-                        label: 'Edit Attendance',
-                        color: Colors.red,
-                        onPressed: () {
-                          // Add your logic for "Edit Attendance" option
-                        },
-                      ),
+                      // _buildOptionCard(
+                      //   icon: Icons.edit,
+                      //   label: 'Edit Attendance',
+                      //   color: Colors.red,
+                      //   onPressed: () {
+                      //     // Add your logic for "Edit Attendance" option
+                      //   },
+                      // ),
                       _buildOptionCard(
                         icon: Icons.receipt,
                         label: 'Attendance Reports',
@@ -130,28 +135,28 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                       _buildOptionCard(
                         icon: Icons.school,
                         label: 'All Classes',
-                        color: Colors.blue,
+                        color: Colors.deepOrange,
                         onPressed: () {
                           Navigator.pushNamed(context, "/teacher/allClasses");
                           // Add your logic for "Add Courses" option
                         },
                       ),
-                      _buildOptionCard(
-                        icon: Icons.person,
-                        label: 'Student Profiles',
-                        color: Colors.black,
-                        onPressed: () {
-                          // Add your logic for "Student Profiles" option
-                        },
-                      ),
-                      _buildOptionCard(
-                        icon: Icons.analytics,
-                        label: 'Analytics and Insights',
-                        color: Colors.deepOrange,
-                        onPressed: () {
-                          // Add your logic for "Analytics and Insights" option
-                        },
-                      ),
+                      // _buildOptionCard(
+                      //   icon: Icons.person,
+                      //   label: 'Student Profiles',
+                      //   color: Colors.black,
+                      //   onPressed: () {
+                      //     // Add your logic for "Student Profiles" option
+                      //   },
+                      // ),
+                      // _buildOptionCard(
+                      //   icon: Icons.analytics,
+                      //   label: 'Analytics and Insights',
+                      //   color: Colors.deepOrange,
+                      //   onPressed: () {
+                      //     // Add your logic for "Analytics and Insights" option
+                      //   },
+                      // ),
                       _buildOptionCard(
                         icon: Icons.qr_code,
                         label: 'Generate Qr Code',

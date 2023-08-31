@@ -4,6 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+class ViewAttendanceByTeacher extends StatefulWidget {
+  const ViewAttendanceByTeacher({super.key});
+
+  @override
+  State<ViewAttendanceByTeacher> createState() =>
+      _ViewAttendanceByTeacherState();
+}
+
 class Student {
   final String id;
 
@@ -12,26 +20,42 @@ class Student {
   });
 }
 
-class AttendanceScreen extends StatefulWidget {
-  @override
-  _AttendanceScreenState createState() => _AttendanceScreenState();
-}
-
-class _AttendanceScreenState extends State<AttendanceScreen> {
-  late String code = "";
+class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
+  String? code = "";
   String batchName = "";
   late String section = "";
 
   late List<bool> attendanceList;
   final List<Student> students = [];
   late DateTime selectedDate; // Track the selected date
+  String? userID = "None";
+  String? role = "none";
+  String? email = "none";
+  int _currentIndex = 0;
+
+  Future<void> extractData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userID = prefs.getString('userID');
+      role = prefs.getString('role');
+      email = prefs.getString('email');
+    });
+    print(userID);
+  }
 
   @override
   void initState() {
     super.initState();
-    fetchStudents(context);
+    extractData();
+    // fetchStudents(context);
     selectedDate =
         DateTime.now(); // Initialize the selected date to the current date
+  }
+
+  Future<void> setCode(BuildContext context) async {
+    code = ModalRoute.of(context)?.settings.arguments as String?;
+    print("hi");
+    print(code);
   }
 
   Future<void> fetchStudents(BuildContext context) async {
@@ -206,89 +230,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          saveAttendance(courseId);
-        },
+        onPressed: () {},
         child: Icon(Icons.save),
       ),
     );
-  }
-
-  void saveAttendance(String? courseId) async {
-    // Same implementation as before
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false, // Prevent dismissing the loading screen
-        builder: (_) => Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-      for (int i = 0; i < attendanceList.length; i++) {
-        String studentId = students[i].id;
-        bool isPresent = attendanceList[i];
-        var date = DateTime.parse(selectedDate.toString());
-        var formattedDate = "${date.day}-${date.month}-${date.year}";
-        Map<String, dynamic> requestBody = {
-          'studentId': studentId,
-          'courseId': courseId,
-          'date': formattedDate,
-          'attendanceStatus': isPresent ? 'present' : 'absent',
-        };
-
-        //print(formattedDate);
-        //  print(requestBody);
-        final response = await http.post(
-          Uri.parse(
-              'http://192.168.43.173:4001/api/v1/teacher/course/attendance'),
-          body: requestBody,
-        );
-        //  print(response);
-        if (response.statusCode == 200) {
-          print('Attendance saved for $studentId');
-        } else {
-          print('Failed to save attendance for $studentId');
-        }
-      }
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Row(
-            children: const [
-              Icon(
-                Icons.check,
-                color: Colors.white,
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text('Attendance saved successfully'),
-            ],
-          ),
-        ),
-      );
-    } catch (error) {
-      Navigator.pop(context);
-      print('Failed to save attendance: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Row(
-            children: const [
-              Icon(
-                Icons.error,
-                color: Colors.white,
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text('Failed to Save Attendance'),
-            ],
-          ),
-        ),
-      );
-    }
   }
 }
 

@@ -6,6 +6,7 @@ import "./screens/teacher//teacherdashboard.dart";
 import "./screens/teacher/allclasses.dart";
 import "./screens/teacher/addClass.dart";
 import "./screens/teacher/takeAttendence.dart";
+import 'screens/teacher/viewAttendance.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         "/teacher": (context) => TeacherDashBoard(),
         "/teacher/allClasses": (context) => AllClasses(),
         "/teacher/addClass": (context) => AddClass(),
+        "/teacher/view": (context) => ViewAttendanceByTeacher(),
         "/teacher/takeattendence": (context) => AttendanceScreen()
       },
       title: 'Flutter Demo',
