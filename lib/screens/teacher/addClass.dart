@@ -35,7 +35,7 @@ class _AddClassState extends State<AddClass> {
     // startRoll, numberOfStudents, code, batchName, teacher
     try {
       final Uri loginUri =
-          Uri.parse('http://192.168.43.173:4001/api/v1/teacher/course');
+          Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course');
       final http.Response response = await http.post(loginUri, body: {
         'startRoll': startRoll,
         'numberOfStudents': totalStudents,

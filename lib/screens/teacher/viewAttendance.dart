@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ViewAttendanceByTeacher extends StatefulWidget {
   const ViewAttendanceByTeacher({super.key});
@@ -12,106 +13,131 @@ class ViewAttendanceByTeacher extends StatefulWidget {
       _ViewAttendanceByTeacherState();
 }
 
-class Student {
-  final String id;
-
-  Student({
-    required this.id,
-  });
-}
-
 class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
   String? code = "";
   String batchName = "";
   late String section = "";
-
   late List<bool> attendanceList;
-  final List<Student> students = [];
+  //creating list of courses for dropdown
+
+  List<CourseDropdownItem> Courses = [];
+  List<Attendance> attendances = [];
+  CourseDropdownItem? selectedCourse;
+
   late DateTime selectedDate; // Track the selected date
   String? userID = "None";
   String? role = "none";
   String? email = "none";
-  int _currentIndex = 0;
 
   Future<void> extractData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userID = prefs.getString('userID');
+      userID = prefs.getString('id');
       role = prefs.getString('role');
       email = prefs.getString('email');
     });
-    print(userID);
   }
 
   @override
   void initState() {
     super.initState();
     extractData();
-    // fetchStudents(context);
+    fetchCourses(context);
     selectedDate =
         DateTime.now(); // Initialize the selected date to the current date
   }
 
   Future<void> setCode(BuildContext context) async {
     code = ModalRoute.of(context)?.settings.arguments as String?;
-    print("hi");
-    print(code);
   }
 
-  Future<void> fetchStudents(BuildContext context) async {
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: false, // Prevent dismissing the loading screen
-    //   builder: (_) => Center(
-    //     child: CircularProgressIndicator(),
-    //   ),
-    // );
+  Future<void> fetchCourses(BuildContext context) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final courseId = ModalRoute.of(context)?.settings.arguments as String?;
-      final Uri loginUri = Uri.parse(
-          'http://192.168.43.173:4001/api/v1/teacher/course/students/$courseId');
+      final Uri loginUri =
+          Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/$userID');
       final http.Response response = await http.get(loginUri);
-      var data = jsonDecode(response.body);
-      //  Navigator.pop(context);
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> courses = data['courses'];
+      // final List<dynamic> data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        List<Student> studentList = [];
+        // var data2 = data['courses'];
+        // print(data2.length);
 
-        var data2 = data['courses'][0]['students'];
-        print(data2.length);
-        for (var courseData in data2) {
-          Student student = Student(
-            id: courseData['userId'],
-          );
-          studentList.add(student);
-        }
         setState(() {
-          print(studentList.length);
-          students.addAll(studentList);
-          attendanceList = List<bool>.filled(students.length, false);
-          code = data['courses'][0]['code'];
-          batchName = data['courses'][0]['batchName'];
-          section = data['courses'][0]['section'];
+          Courses = courses.map<CourseDropdownItem>((item) {
+            return CourseDropdownItem(
+              item['_id'],
+              '${item['code']} - ${item['section']} Section - ${item['batchName']} Batch',
+            );
+          }).toList();
         });
       } else {
-        throw Exception("Failed to Load Data");
+        throw Exception("Failed to Load Courses Item");
       }
     } catch (error) {
       // Navigator.pop(context);
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text(
-            ' Failed',
-            style: TextStyle(),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Row(
+            children: const [
+              Icon(
+                Icons.check,
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text('Failed to Load Courses Item'),
+            ],
           ),
-          content: const Text("Failed to Load Data"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Try Again'),
-            ),
-          ],
+        ),
+      );
+      //throw Exception("Failed to Load Data");
+    }
+  }
+
+  Future<void> fetchAttendance(BuildContext context) async {
+    try {
+      var date = DateTime.parse(selectedDate.toString());
+      var formattedDate = "${date.day}-${date.month}-${date.year}";
+      final courseCode = selectedCourse?.id;
+      final Uri fetchUri = Uri.parse(
+          'http://192.168.0.113:4001/api/v1/teacher/course/attendance/$courseCode/$formattedDate');
+      final http.Response response = await http.get(fetchUri);
+      final Map<String, dynamic> data = await jsonDecode(response.body);
+      final List<dynamic> attendance = data['attendance'];
+      if (response.statusCode == 200) {
+        //  print(attendance[0]._id);
+        setState(() {
+          attendances = attendance.map<Attendance>((item) {
+            return Attendance(item['_id'], item['studentId'], item['courseId'],
+                item['date'], item['attendanceStatus']);
+          }).toList();
+        });
+      } else {
+        throw Exception("Failed to load attendance");
+      }
+    } catch (error) {
+      print(error);
+      // Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Row(
+            children: const [
+              Icon(
+                Icons.check,
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text('Failed to Load Courses Item'),
+            ],
+          ),
         ),
       );
       //throw Exception("Failed to Load Data");
@@ -126,7 +152,7 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
       appBar: AppBar(
         title: Row(
           children: [
-            Text('Attendance'),
+            Text('Select Date'),
             SizedBox(width: 8),
             DatePickerButton(
               // Custom button to open date picker
@@ -143,42 +169,6 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
       body: Column(
         children: [
           Container(
-            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "$code",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-                SizedBox(width: 8),
-                Text(
-                  "$batchName",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-                SizedBox(width: 8),
-                Text(
-                  "Section $section",
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-          Container(
             height: 60,
             margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             decoration: BoxDecoration(
@@ -192,35 +182,104 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
               ),
             ),
           ),
+          Container(
+            height: 60,
+            width: MediaQuery.of(context).size.width * .9,
+            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<CourseDropdownItem>(
+                      value: selectedCourse,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCourse = newValue;
+                          fetchAttendance(context);
+                        });
+                      },
+                      hint: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Select a Course"),
+                      ),
+                      underline: Container(), // Removes the underline
+                      items: Courses.map((item) {
+                        return DropdownMenuItem<CourseDropdownItem>(
+                          value: item,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(item.text),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                // Icon(Icons.arrow_drop_down), // Right-aligned dropdown arrow
+              ],
+            ),
+          ),
+          attendances.length != 0
+              ? Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Id",
+                        style: TextStyle(
+                            fontSize: 25, fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        "Status",
+                        style: TextStyle(
+                            fontSize: 25, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                )
+              : Text(
+                  "No Result Found",
+                  style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.red),
+                ),
+          Divider(),
           Expanded(
             child: ListView.separated(
-              itemCount: students.length,
+              itemCount: attendances.length,
               separatorBuilder: (context, index) => Divider(),
               itemBuilder: (context, index) {
                 return Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      students[index].id,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    leading: Checkbox(
-                      value: attendanceList[index],
-                      onChanged: (value) {
-                        setState(() {
-                          attendanceList[index] = value ?? false;
-                        });
-                      },
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.info),
-                      color: Colors.blue,
-                      onPressed: () {
-                        //   showStudentDetails(students[index]);
-                      },
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          attendances[index].studentId,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        Text(
+                          attendances[index].attendanceStatus[0].toUpperCase() +
+                              attendances[index].attendanceStatus.substring(1),
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: attendances[index].attendanceStatus ==
+                                      "present"
+                                  ? Colors.green
+                                  : Colors.red),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -268,4 +327,20 @@ class DatePickerButton extends StatelessWidget {
       onDateChanged(pickedDate);
     }
   }
+}
+
+class CourseDropdownItem {
+  final String id;
+  final String text;
+  CourseDropdownItem(this.id, this.text);
+}
+
+class Attendance {
+  final String _id;
+  final String studentId;
+  final String courseId;
+  final String date;
+  final String attendanceStatus;
+  Attendance(this._id, this.studentId, this.courseId, this.date,
+      this.attendanceStatus);
 }

@@ -46,7 +46,7 @@ class _AllClassesState extends State<AllClasses> {
       });
 
       final Uri loginUri =
-          Uri.parse('http://192.168.43.173:4001/api/v1/teacher/course/$id');
+          Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/$id');
       final http.Response response = await http.get(loginUri);
       var data = jsonDecode(response.body);
 
@@ -144,7 +144,7 @@ class _AllClassesState extends State<AllClasses> {
 
   Future<void> deleteCourse(courseId) async {
     final Uri deleteUri =
-        Uri.parse('http://192.168.43.173:4001/api/v1/teacher/course/$id');
+        Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/$id');
     final http.Response response =
         await http.delete(deleteUri, body: {"courseId": courseId});
 

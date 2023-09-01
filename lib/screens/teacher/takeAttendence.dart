@@ -46,7 +46,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final courseId = ModalRoute.of(context)?.settings.arguments as String?;
       final Uri loginUri = Uri.parse(
-          'http://192.168.43.173:4001/api/v1/teacher/course/students/$courseId');
+          'http://192.168.0.113:4001/api/v1/teacher/course/students/$courseId');
       final http.Response response = await http.get(loginUri);
       var data = jsonDecode(response.body);
       //  Navigator.pop(context);
@@ -224,31 +224,37 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           child: CircularProgressIndicator(),
         ),
       );
+      List<Map<String, dynamic>> attendanceData = [];
       for (int i = 0; i < attendanceList.length; i++) {
         String studentId = students[i].id;
         bool isPresent = attendanceList[i];
         var date = DateTime.parse(selectedDate.toString());
         var formattedDate = "${date.day}-${date.month}-${date.year}";
+
         Map<String, dynamic> requestBody = {
           'studentId': studentId,
           'courseId': courseId,
           'date': formattedDate,
           'attendanceStatus': isPresent ? 'present' : 'absent',
         };
-
+        attendanceData.add(requestBody);
         //print(formattedDate);
         //  print(requestBody);
-        final response = await http.post(
-          Uri.parse(
-              'http://192.168.43.173:4001/api/v1/teacher/course/attendance'),
-          body: requestBody,
-        );
-        //  print(response);
-        if (response.statusCode == 200) {
-          print('Attendance saved for $studentId');
-        } else {
-          print('Failed to save attendance for $studentId');
-        }
+      }
+      print(attendanceData);
+      final response = await http.post(
+        Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/attendance'),
+        headers: {
+          'Content-Type': 'application/json', // Specify JSON content type
+        },
+        body: jsonEncode(attendanceData),
+      );
+
+      //  print(response);
+      if (response.statusCode == 200) {
+        print('Attendance saved for all student');
+      } else {
+        print('Failed to save attendance for some students');
       }
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
