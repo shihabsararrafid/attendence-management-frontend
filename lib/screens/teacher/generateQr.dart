@@ -22,7 +22,7 @@ class _GenerateAttendanceQrCodeState extends State<GenerateAttendanceQrCode> {
 
   List<CourseDropdownItem> Courses = [];
   List<String> Duration = ['5 min', '10 min', '30 min', '45 min', '60 min'];
-  List<Attendance> attendances = [];
+
   CourseDropdownItem? selectedCourse;
   String? selectedDuration;
   String? qrUriImg;
@@ -113,8 +113,9 @@ class _GenerateAttendanceQrCodeState extends State<GenerateAttendanceQrCode> {
       var date = DateTime.parse(selectedDate.toString());
       var formattedDate = "${date.day}-${date.month}-${date.year}";
       final courseCode = selectedCourse?.id;
+      var duration = int.parse(selectedDuration!.split(" ")[0]);
       final Uri fetchUri = Uri.parse(
-          'http://192.168.0.113:4001/api/v1/teacher/course/attendance/qr?courseId=$courseCode&date=$selectedDate&duration=$selectedDuration');
+          'http://192.168.0.113:4001/api/v1/teacher/course/attendance/qr?courseId=$courseCode&date=$selectedDate&duration=$duration');
       print(fetchUri);
       final http.Response response = await http.get(fetchUri);
       final Map<String, dynamic> data = await jsonDecode(response.body);
@@ -166,275 +167,274 @@ class _GenerateAttendanceQrCodeState extends State<GenerateAttendanceQrCode> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-            height: 60,
-            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 60,
+              margin: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Selected Date: ${selectedDate.toString().substring(0, 10)}',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    DatePickerButton(
+                      // Custom button to open date picker
+                      selectedDate: selectedDate,
+                      onDateChanged: (DateTime newDate) {
+                        setState(() {
+                          selectedDate = newDate;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            Container(
+              height: 60,
+              width: MediaQuery.of(context).size.width * .9,
+              margin: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
                 children: [
-                  Text(
-                    'Selected Date: ${selectedDate.toString().substring(0, 10)}',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<CourseDropdownItem>(
+                        value: selectedCourse,
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedCourse = newValue;
+                            // fetchAttendance(context);
+                          });
+                        },
+                        hint: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("Select a Course"),
+                        ),
+                        underline: Container(), // Removes the underline
+                        items: Courses.map((item) {
+                          return DropdownMenuItem<CourseDropdownItem>(
+                            value: item,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(item.text),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                  DatePickerButton(
-                    // Custom button to open date picker
-                    selectedDate: selectedDate,
-                    onDateChanged: (DateTime newDate) {
-                      setState(() {
-                        selectedDate = newDate;
-                      });
-                    },
-                  ),
+
+                  // Icon(Icons.arrow_drop_down), // Right-aligned dropdown arrow
                 ],
               ),
             ),
-          ),
-          Container(
-            height: 60,
-            width: MediaQuery.of(context).size.width * .9,
-            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<CourseDropdownItem>(
-                      value: selectedCourse,
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedCourse = newValue;
-                          // fetchAttendance(context);
-                        });
-                      },
-                      hint: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text("Select a Course"),
-                      ),
-                      underline: Container(), // Removes the underline
-                      items: Courses.map((item) {
-                        return DropdownMenuItem<CourseDropdownItem>(
-                          value: item,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(item.text),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-
-                // Icon(Icons.arrow_drop_down), // Right-aligned dropdown arrow
-              ],
-            ),
-          ),
-          Container(
-            height: 60,
-            width: MediaQuery.of(context).size.width * .9,
-            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedDuration,
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedDuration = newValue!;
-                          // fetchAttendance(context);
-                        });
-                      },
-                      hint: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("Qr Code Validation Time"),
-                      ),
-
-                      underline: Container(), // Removes the underline
-                      items: Duration.map((item) {
-                        return DropdownMenuItem<String>(
-                          value: item,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(item),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-
-                // Icon(Icons.arrow_drop_down), // Right-aligned dropdown arrow
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 6,
-          ),
-          GestureDetector(
-            onTap: () {
-              if (selectedCourse == null) {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text(
-                      'Validation Error',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 18,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    content: const Text(
-                      'Course Cannot Be Empty',
-                      textAlign: TextAlign.center,
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              } else if (selectedDuration == null) {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text(
-                      'Validation Error',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 18,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    content: const Text(
-                      'Duration Cannot Be Empty',
-                      textAlign: TextAlign.center,
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                print(selectedDuration);
-                print(selectedCourse);
-                getQrCode(context);
-              }
-              // login(context);
-            },
-            child: Container(
-              width: MediaQuery.of(context).size.width * .5,
-              height: 50,
+            Container(
+              height: 60,
+              width: MediaQuery.of(context).size.width * .9,
+              margin: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.blue, width: 2),
-                color: Colors.blue,
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Center(
-                child: Text(
-                  'Generate',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedDuration,
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedDuration = newValue!;
+                            // fetchAttendance(context);
+                          });
+                        },
+                        hint: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text("Qr Code Validation Time"),
+                        ),
+
+                        underline: Container(), // Removes the underline
+                        items: Duration.map((item) {
+                          return DropdownMenuItem<String>(
+                            value: item,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(item),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                ),
+
+                  // Icon(Icons.arrow_drop_down), // Right-aligned dropdown arrow
+                ],
               ),
             ),
-          ),
-          qrUriImg != null
-              ? Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        height: 400, // Set the desired height of the container
-                        width: MediaQuery.of(context).size.width * .8,
-                        // Set the desired width of the container
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200], // Container background color
-                          borderRadius: BorderRadius.circular(8),
+            const SizedBox(
+              height: 6,
+            ),
+            GestureDetector(
+              onTap: () {
+                if (selectedCourse == null) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text(
+                        'Validation Error',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
                         ),
-                        child: Image.memory(
-                          // Replace this with your base64 image data
-                          base64Decode(qrUriImg!.split(',')[1]),
-                        ),
-                        // This resizes the image to fit within the container
+                        textAlign: TextAlign.center,
                       ),
-
-                      // Image.memory(
-                      //   base64Decode(
-                      //       // Your base64 data URI here
-                      //       qrUriImg!.split(',')[1]),
-                      // ),
-                    ],
-                  ),
-                )
-              : const Text(
-                  "No Result Found",
-                  style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red),
-                ),
-          const Divider(),
-          Expanded(
-            child: ListView.separated(
-              itemCount: attendances.length,
-              separatorBuilder: (context, index) => Divider(),
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 1),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          attendances[index].studentId,
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        Text(
-                          attendances[index].attendanceStatus[0].toUpperCase() +
-                              attendances[index].attendanceStatus.substring(1),
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: attendances[index].attendanceStatus ==
-                                      "present"
-                                  ? Colors.green
-                                  : Colors.red),
+                      content: const Text(
+                        'Course Cannot Be Empty',
+                        textAlign: TextAlign.center,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
                         ),
                       ],
                     ),
-                  ),
-                );
+                  );
+                } else if (selectedDuration == null) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text(
+                        'Validation Error',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      content: const Text(
+                        'Duration Cannot Be Empty',
+                        textAlign: TextAlign.center,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  print(selectedDuration);
+                  print(selectedCourse);
+                  getQrCode(context);
+                }
+                // login(context);
               },
+              child: Container(
+                width: MediaQuery.of(context).size.width * .5,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: Colors.blue, width: 2),
+                  color: Colors.blue,
+                ),
+                child: const Center(
+                  child: Text(
+                    'Generate',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+            qrUriImg != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height:
+                              300, // Set the desired height of the container
+                          width: MediaQuery.of(context).size.width * .8,
+                          // Set the desired width of the container
+                          decoration: BoxDecoration(
+                            color: Colors.white, // Container background color
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Image.memory(
+                            // Replace this with your base64 image data
+                            base64Decode(qrUriImg!.split(',')[1]),
+                            fit: BoxFit.contain,
+                          ),
+                          // This resizes the image to fit within the container
+                        ),
+
+                        // Image.memory(
+                        //   base64Decode(
+                        //       // Your base64 data URI here
+                        //       qrUriImg!.split(',')[1]),
+                        // ),
+
+                        GestureDetector(
+                          onTap: () {
+                            // login(context);
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * .5,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.black, width: 2),
+                              color: Colors.black,
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Share Now',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Image.memory(
+                        //   base64Decode(
+                        //       // Your base64 data URI here
+                        //       qrUriImg!.split(',')[1]),
+                        // ),
+                      ],
+                    ),
+                  )
+                : const Text(
+                    "No Qr Code Found",
+                    style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.red),
+                  ),
+          ],
+        ),
       ),
     );
   }
@@ -477,14 +477,4 @@ class CourseDropdownItem {
   final String id;
   final String text;
   CourseDropdownItem(this.id, this.text);
-}
-
-class Attendance {
-  final String _id;
-  final String studentId;
-  final String courseId;
-  final String date;
-  final String attendanceStatus;
-  Attendance(this._id, this.studentId, this.courseId, this.date,
-      this.attendanceStatus);
 }
