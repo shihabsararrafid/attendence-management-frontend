@@ -1,19 +1,17 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 
-class ViewAttendanceByTeacher extends StatefulWidget {
-  const ViewAttendanceByTeacher({super.key});
+class AttendanceReport extends StatefulWidget {
+  const AttendanceReport({super.key});
 
   @override
-  State<ViewAttendanceByTeacher> createState() =>
-      _ViewAttendanceByTeacherState();
+  State<AttendanceReport> createState() => _AttendanceReportState();
 }
 
-class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
+class _AttendanceReportState extends State<AttendanceReport> {
   String? code = "";
   String batchName = "";
   late String section = "";
@@ -99,6 +97,58 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
     }
   }
 
+  // Future<void> saveAttendanceAsPDF(List<Attendance> attendances) async {
+  //   final pdf = pw.Document();
+
+  //   pdf.addPage(
+  //     pw.Page(
+  //       build: (context) => pw.Column(
+  //         children: [
+  //           pw.Header(text: 'Attendance Report'),
+  //           pw.Table.fromTextArray(
+  //             context: context,
+  //             data: <List<String>>[
+  //               <String>['Student ID', 'Percentage'],
+  //               for (final attendance in attendances)
+  //                 <String>[
+  //                   attendance.studentId,
+  //                   '${attendance.attendancePercentage.toStringAsFixed(2)}%'
+  //                 ],
+  //             ],
+  //             cellStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+
+  //   try {
+  //     final directory = await getApplicationDocumentsDirectory();
+  //     final filePath = '${directory.path}/attendance_report.pdf';
+
+  //     final file = File("new.pdf");
+  //     await file.writeAsBytes(await pdf.save());
+
+  //     // Show a success message to the user
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         backgroundColor: Colors.green,
+  //         content: const Text('Attendance data saved as PDF.'),
+  //       ),
+  //     );
+  //   } catch (e) {
+  //     // Handle any exceptions that may occur during file operations
+  //     print('Error saving PDF: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         backgroundColor: Colors.red,
+  //         content: const Text('Failed to save PDF.'),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> fetchAttendance(BuildContext context) async {
     showDialog(
       context: context,
@@ -112,7 +162,7 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
       var formattedDate = "${date.day}-${date.month}-${date.year}";
       final courseCode = selectedCourse?.id;
       final Uri fetchUri = Uri.parse(
-          'http://192.168.0.113:4001/api/v1/teacher/course/attendance/$courseCode/$formattedDate');
+          'http://192.168.0.113:4001/api/v1/teacher/course/attendance/?courseId=$courseCode');
       final http.Response response = await http.get(fetchUri);
       final Map<String, dynamic> data = await jsonDecode(response.body);
       final List<dynamic> attendance = data['attendance'];
@@ -121,8 +171,8 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
         //  print(attendance[0]._id);
         setState(() {
           attendances = attendance.map<Attendance>((item) {
-            return Attendance(item['_id'], item['studentId'], item['courseId'],
-                item['date'], item['attendanceStatus']);
+            return Attendance(item['studentId'], item['attendancePercentage'],
+                item['totalClass']);
           }).toList();
         });
       } else {
@@ -159,40 +209,13 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: [
+          children: const [
             Text('Attendance Report'),
-            SizedBox(width: 8),
-            DatePickerButton(
-              // Custom button to open date picker
-              selectedDate: selectedDate,
-              onDateChanged: (DateTime newDate) {
-                setState(() {
-                  selectedDate = newDate;
-                  if (selectedCourse != null) {
-                    fetchAttendance(context);
-                  }
-                });
-              },
-            ),
           ],
         ),
       ),
       body: Column(
         children: [
-          Container(
-            height: 60,
-            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                'Selected Date: ${selectedDate.toString().substring(0, 10)}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
           Container(
             height: 60,
             width: MediaQuery.of(context).size.width * .9,
@@ -247,7 +270,7 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
                             fontSize: 20, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        "Status",
+                        "Percentage",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w500),
                       ),
@@ -280,15 +303,17 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
                           style: const TextStyle(fontSize: 18),
                         ),
                         Text(
-                          attendances[index].attendanceStatus[0].toUpperCase() +
-                              attendances[index].attendanceStatus.substring(1),
-                          style: TextStyle(
+                          attendances[index]
+                                      .attendancePercentage
+                                      .toString()
+                                      .length <
+                                  5
+                              ? "${attendances[index].attendancePercentage}%"
+                              : "${attendances[index].attendancePercentage.toString().substring(0, 5)}%",
+                          style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
-                              color: attendances[index].attendanceStatus ==
-                                      "present"
-                                  ? Colors.green
-                                  : Colors.red),
+                              color: Colors.blue),
                         ),
                       ],
                     ),
@@ -298,6 +323,12 @@ class _ViewAttendanceByTeacherState extends State<ViewAttendanceByTeacher> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          //saveAttendance(courseId);
+        },
+        child: const Icon(Icons.download),
       ),
     );
   }
@@ -343,11 +374,13 @@ class CourseDropdownItem {
 }
 
 class Attendance {
-  final String _id;
   final String studentId;
-  final String courseId;
-  final String date;
-  final String attendanceStatus;
-  Attendance(this._id, this.studentId, this.courseId, this.date,
-      this.attendanceStatus);
+  var attendancePercentage;
+  final int totalClass;
+
+  Attendance(
+    this.studentId,
+    this.attendancePercentage,
+    this.totalClass,
+  );
 }

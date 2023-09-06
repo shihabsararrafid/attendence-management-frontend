@@ -120,6 +120,9 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                         label: 'Attendance Reports',
                         color: Colors.green,
                         onPressed: () {
+                          Navigator.pushNamed(
+                              context, "/teacher/attendanceReport",
+                              arguments: userID);
                           // Add your logic for "Attendance Reports" option
                         },
                       ),
@@ -163,6 +166,8 @@ class _TeacherDashBoardState extends State<TeacherDashBoard> {
                         color: Colors.cyan,
                         onPressed: () {
                           // Add your logic for "Export/Import Data" option
+                          Navigator.pushNamed(context, "/teacher/qr",
+                              arguments: userID);
                         },
                       ),
                     ],
