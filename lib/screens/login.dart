@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
     );
     try {
       final Uri loginUri =
-          Uri.parse('http://192.168.0.113:4001/api/v1/auth/login');
+          Uri.parse('http://192.168.43.173:4001/api/v1/auth/login');
       final http.Response response = await http.post(loginUri, body: {
         'userId': userID,
         'password': password,
@@ -65,6 +65,8 @@ class _LoginState extends State<Login> {
         );
         if (role == "teacher") {
           Navigator.pushNamed(context, "/teacher");
+        } else if (role == "student") {
+          Navigator.pushNamed(context, "/student");
         }
         // Navigate to the home screen or the next screen
         //  Navigator.pushReplacementNamed(context, '/home');

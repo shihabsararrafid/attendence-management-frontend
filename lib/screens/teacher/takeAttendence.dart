@@ -46,7 +46,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final courseId = ModalRoute.of(context)?.settings.arguments as String?;
       final Uri loginUri = Uri.parse(
-          'http://192.168.0.113:4001/api/v1/teacher/course/students/$courseId');
+          'http://192.168.43.173:4001/api/v1/teacher/course/students/$courseId');
       final http.Response response = await http.get(loginUri);
       var data = jsonDecode(response.body);
       //  Navigator.pop(context);
@@ -243,7 +243,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       }
       print(attendanceData);
       final response = await http.post(
-        Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/attendance'),
+        Uri.parse(
+            'http://192.168.43.173:4001/api/v1/teacher/course/attendance'),
         headers: {
           'Content-Type': 'application/json', // Specify JSON content type
         },

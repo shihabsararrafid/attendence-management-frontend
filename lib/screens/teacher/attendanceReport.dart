@@ -54,7 +54,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final courseId = ModalRoute.of(context)?.settings.arguments as String?;
       final Uri loginUri =
-          Uri.parse('http://192.168.0.113:4001/api/v1/teacher/course/$userID');
+          Uri.parse('http://192.168.43.173:4001/api/v1/teacher/course/$userID');
       final http.Response response = await http.get(loginUri);
       final Map<String, dynamic> data = jsonDecode(response.body);
       final List<dynamic> courses = data['courses'];
@@ -162,7 +162,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
       var formattedDate = "${date.day}-${date.month}-${date.year}";
       final courseCode = selectedCourse?.id;
       final Uri fetchUri = Uri.parse(
-          'http://192.168.0.113:4001/api/v1/teacher/course/attendance/?courseId=$courseCode');
+          'http://192.168.43.173:4001/api/v1/teacher/course/attendance/?courseId=$courseCode');
       final http.Response response = await http.get(fetchUri);
       final Map<String, dynamic> data = await jsonDecode(response.body);
       final List<dynamic> attendance = data['attendance'];

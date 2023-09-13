@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
     try {
       final Uri loginUri =
-          Uri.parse('http://192.168.0.113:4001/api/v1/auth/register');
+          Uri.parse('http://192.168.43.173:4001/api/v1/auth/register');
       final http.Response response = await http.post(loginUri, body: {
         'userId': userID,
         'password': password,
