@@ -47,7 +47,9 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, "/capturePhoto");
+                      },
                       child: const Icon(
                         Icons.camera_alt,
                         color: Colors.black,
@@ -95,7 +97,7 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                         color: Colors.orange,
                         onPressed: () {
                           // Add your logic for "View Attendance" option
-                          Navigator.pushNamed(context, "/teacher/view",
+                          Navigator.pushNamed(context, "/student/view",
                               arguments: userID);
                         },
                       ),
@@ -115,7 +117,7 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                         label: 'All Classes',
                         color: Colors.deepOrange,
                         onPressed: () {
-                          Navigator.pushNamed(context, "/teacher/allClasses");
+                          Navigator.pushNamed(context, "/student/allClasses");
                           // Add your logic for "Add Courses" option
                         },
                       ),

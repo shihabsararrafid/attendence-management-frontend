@@ -34,8 +34,8 @@ class _AddClassState extends State<AddClass> {
     );
     // startRoll, numberOfStudents, code, batchName, teacher
     try {
-      final Uri loginUri =
-          Uri.parse('http://192.168.43.173:4001/api/v1/teacher/course');
+      final Uri loginUri = Uri.parse(
+          'https://attendence-backend-silk.vercel.app/api/v1/teacher/course');
       final http.Response response = await http.post(loginUri, body: {
         'startRoll': startRoll,
         'numberOfStudents': totalStudents,

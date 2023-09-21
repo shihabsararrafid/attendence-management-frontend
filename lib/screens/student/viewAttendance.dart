@@ -1,17 +1,19 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
-class AttendanceReport extends StatefulWidget {
-  const AttendanceReport({super.key});
+class ViewAttendanceByStudent extends StatefulWidget {
+  const ViewAttendanceByStudent({super.key});
 
   @override
-  State<AttendanceReport> createState() => _AttendanceReportState();
+  State<ViewAttendanceByStudent> createState() =>
+      _ViewAttendanceByStudentState();
 }
 
-class _AttendanceReportState extends State<AttendanceReport> {
+class _ViewAttendanceByStudentState extends State<ViewAttendanceByStudent> {
   String? code = "";
   String batchName = "";
   late String section = "";
@@ -30,7 +32,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
   Future<void> extractData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userID = prefs.getString('id');
+      userID = prefs.getString('userID');
       role = prefs.getString('role');
       email = prefs.getString('email');
     });
@@ -54,10 +56,11 @@ class _AttendanceReportState extends State<AttendanceReport> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final courseId = ModalRoute.of(context)?.settings.arguments as String?;
       final Uri loginUri = Uri.parse(
-          'https://attendence-backend-silk.vercel.app/api/v1/teacher/course/$userID');
+          'https://attendence-backend-silk.vercel.app/api/v1/student/allClasses?studentId=$userID');
       final http.Response response = await http.get(loginUri);
       final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> courses = data['courses'];
+      final List<dynamic> courses = data['classes'];
+      print(loginUri);
       // final List<dynamic> data = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // var data2 = data['courses'];
@@ -97,58 +100,6 @@ class _AttendanceReportState extends State<AttendanceReport> {
     }
   }
 
-  // Future<void> saveAttendanceAsPDF(List<Attendance> attendances) async {
-  //   final pdf = pw.Document();
-
-  //   pdf.addPage(
-  //     pw.Page(
-  //       build: (context) => pw.Column(
-  //         children: [
-  //           pw.Header(text: 'Attendance Report'),
-  //           pw.Table.fromTextArray(
-  //             context: context,
-  //             data: <List<String>>[
-  //               <String>['Student ID', 'Percentage'],
-  //               for (final attendance in attendances)
-  //                 <String>[
-  //                   attendance.studentId,
-  //                   '${attendance.attendancePercentage.toStringAsFixed(2)}%'
-  //                 ],
-  //             ],
-  //             cellStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-  //             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-
-  //   try {
-  //     final directory = await getApplicationDocumentsDirectory();
-  //     final filePath = '${directory.path}/attendance_report.pdf';
-
-  //     final file = File("new.pdf");
-  //     await file.writeAsBytes(await pdf.save());
-
-  //     // Show a success message to the user
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         backgroundColor: Colors.green,
-  //         content: const Text('Attendance data saved as PDF.'),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     // Handle any exceptions that may occur during file operations
-  //     print('Error saving PDF: $e');
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         backgroundColor: Colors.red,
-  //         content: const Text('Failed to save PDF.'),
-  //       ),
-  //     );
-  //   }
-  // }
-
   Future<void> fetchAttendance(BuildContext context) async {
     showDialog(
       context: context,
@@ -162,7 +113,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
       var formattedDate = "${date.day}-${date.month}-${date.year}";
       final courseCode = selectedCourse?.id;
       final Uri fetchUri = Uri.parse(
-          'https://attendence-backend-silk.vercel.app/api/v1/teacher/course/attendance/?courseId=$courseCode');
+          'https://attendence-backend-silk.vercel.app/api/v1/student/getAttendance?studentId=$userID&courseId=$courseCode');
       final http.Response response = await http.get(fetchUri);
       final Map<String, dynamic> data = await jsonDecode(response.body);
       final List<dynamic> attendance = data['attendance'];
@@ -171,8 +122,7 @@ class _AttendanceReportState extends State<AttendanceReport> {
         //  print(attendance[0]._id);
         setState(() {
           attendances = attendance.map<Attendance>((item) {
-            return Attendance(item['studentId'], item['attendancePercentage'],
-                item['totalClass']);
+            return Attendance(item['date'], item['attendanceStatus']);
           }).toList();
         });
       } else {
@@ -209,8 +159,9 @@ class _AttendanceReportState extends State<AttendanceReport> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: const [
-            Text('Attendance Report'),
+          children: [
+            Text('View Attendance'),
+            SizedBox(width: 8),
           ],
         ),
       ),
@@ -265,12 +216,12 @@ class _AttendanceReportState extends State<AttendanceReport> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
                       Text(
-                        "StudentId",
+                        "Date",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        "Percentage",
+                        "Status",
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.w500),
                       ),
@@ -299,21 +250,19 @@ class _AttendanceReportState extends State<AttendanceReport> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          attendances[index].studentId,
+                          attendances[index].date,
                           style: const TextStyle(fontSize: 18),
                         ),
                         Text(
-                          attendances[index]
-                                      .attendancePercentage
-                                      .toString()
-                                      .length <
-                                  5
-                              ? "${attendances[index].attendancePercentage}%"
-                              : "${attendances[index].attendancePercentage.toString().substring(0, 5)}%",
-                          style: const TextStyle(
+                          attendances[index].attendanceStatus[0].toUpperCase() +
+                              attendances[index].attendanceStatus.substring(1),
+                          style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
-                              color: Colors.blue),
+                              color: attendances[index].attendanceStatus ==
+                                      "present"
+                                  ? Colors.green
+                                  : Colors.red),
                         ),
                       ],
                     ),
@@ -323,12 +272,6 @@ class _AttendanceReportState extends State<AttendanceReport> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //saveAttendance(courseId);
-        },
-        child: const Icon(Icons.download),
       ),
     );
   }
@@ -374,13 +317,7 @@ class CourseDropdownItem {
 }
 
 class Attendance {
-  final String studentId;
-  var attendancePercentage;
-  final int totalClass;
-
-  Attendance(
-    this.studentId,
-    this.attendancePercentage,
-    this.totalClass,
-  );
+  final String date;
+  final String attendanceStatus;
+  Attendance(this.date, this.attendanceStatus);
 }

@@ -4,11 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 
-class AllClasses extends StatefulWidget {
-  const AllClasses({Key? key}) : super(key: key);
+class AllClassesStudent extends StatefulWidget {
+  const AllClassesStudent({Key? key}) : super(key: key);
 
   @override
-  State<AllClasses> createState() => _AllClassesState();
+  State<AllClassesStudent> createState() => _AllClassesStudentState();
 }
 
 class Course {
@@ -25,7 +25,7 @@ class Course {
   });
 }
 
-class _AllClassesState extends State<AllClasses> {
+class _AllClassesStudentState extends State<AllClassesStudent> {
   String? userID = "None";
   String? role = "none";
   String? email = "none";
@@ -46,13 +46,13 @@ class _AllClassesState extends State<AllClasses> {
       });
 
       final Uri loginUri = Uri.parse(
-          'https://attendence-backend-silk.vercel.app/api/v1/teacher/course/$id');
+          'https://attendence-backend-silk.vercel.app/api/v1/student/allClasses?studentId=$userID');
       final http.Response response = await http.get(loginUri);
       var data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
         List<Course> TempCourse = [];
-        for (var courseData in data['courses']) {
+        for (var courseData in data['classes']) {
           Course course = Course(
             id: courseData['_id'],
             code: courseData['code'],
@@ -86,8 +86,8 @@ class _AllClassesState extends State<AllClasses> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Registration Failed'),
-          content: const Text("Duplicate Email or UserId"),
+          title: const Text('Error'),
+          content: const Text("Server Error"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -398,12 +398,6 @@ class BlueDataTable extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
           ),
-          DataColumn(
-            label: Text(
-              'Actions',
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
         ],
         rows: courseList.map((course) {
           return DataRow(cells: [
@@ -443,22 +437,6 @@ class BlueDataTable extends StatelessWidget {
                   // Handle series click
                 },
                 child: Center(child: Text(course.batchName)),
-              ),
-            ),
-            DataCell(
-              InkWell(
-                onTap: () {
-                  deleteCallback(course.id);
-                },
-                child: Center(
-                  child: const Text(
-                    'Delete',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
               ),
             ),
           ]);

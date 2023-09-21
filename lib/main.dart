@@ -10,6 +10,9 @@ import "./screens/teacher/takeAttendence.dart";
 import 'screens/teacher/viewAttendance.dart';
 import 'screens/teacher/attendanceReport.dart';
 import 'screens/student/studentDashboard.dart';
+import 'screens/student/allClasses.dart';
+import 'screens/student/viewAttendance.dart';
+import 'utils/scanQrCode.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +37,10 @@ class MyApp extends StatelessWidget {
         "/teacher/takeattendence": (context) => AttendanceScreen(),
         "/teacher/attendanceReport": (context) => AttendanceReport(),
         "/teacher/qr": (context) => GenerateAttendanceQrCode(),
-        "/student": (context) => StudentDashBoard()
+        "/student": (context) => StudentDashBoard(),
+        "/student/allClasses": (context) => AllClassesStudent(),
+        "/student/view": (context) => ViewAttendanceByStudent()
+        // "/capturePhoto": (context) => CameraScreen(),
       },
       title: 'Flutter Demo',
       theme: ThemeData(
