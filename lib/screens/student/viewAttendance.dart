@@ -28,6 +28,7 @@ class _ViewAttendanceByStudentState extends State<ViewAttendanceByStudent> {
   String? userID = "None";
   String? role = "none";
   String? email = "none";
+  String? classPercentage = "0";
 
   Future<void> extractData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -121,6 +122,8 @@ class _ViewAttendanceByStudentState extends State<ViewAttendanceByStudent> {
         Navigator.pop(context);
         //  print(attendance[0]._id);
         setState(() {
+          double percentage = (data['presentCount'] / data['totalClass']) * 100;
+          classPercentage = percentage.toString();
           attendances = attendance.map<Attendance>((item) {
             return Attendance(item['date'], item['attendanceStatus']);
           }).toList();
@@ -206,6 +209,20 @@ class _ViewAttendanceByStudentState extends State<ViewAttendanceByStudent> {
                 ),
                 // Icon(Icons.arrow_drop_down), // Right-aligned dropdown arrow
               ],
+            ),
+          ),
+          Container(
+            height: 60,
+            margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                'Percentage: ${classPercentage} %',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           attendances.isNotEmpty

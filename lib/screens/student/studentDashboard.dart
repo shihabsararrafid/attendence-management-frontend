@@ -102,17 +102,6 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                         },
                       ),
                       _buildOptionCard(
-                        icon: Icons.receipt,
-                        label: 'Attendance Reports',
-                        color: Colors.green,
-                        onPressed: () {
-                          Navigator.pushNamed(
-                              context, "/teacher/attendanceReport",
-                              arguments: userID);
-                          // Add your logic for "Attendance Reports" option
-                        },
-                      ),
-                      _buildOptionCard(
                         icon: Icons.school,
                         label: 'All Classes',
                         color: Colors.deepOrange,
