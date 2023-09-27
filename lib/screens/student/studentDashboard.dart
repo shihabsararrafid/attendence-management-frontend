@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../utils/scanQrCode.dart';
 
 class StudentDashBoard extends StatefulWidget {
   StudentDashBoard({Key? key});
@@ -116,8 +117,10 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                         color: Colors.cyan,
                         onPressed: () {
                           // Add your logic for "Export/Import Data" option
-                          Navigator.pushNamed(context, "/teacher/qr",
-                              arguments: userID);
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                QRViewExample(), // Trigger the QR scanner widget
+                          ));
                         },
                       ),
                     ],
