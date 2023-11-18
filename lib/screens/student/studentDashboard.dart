@@ -112,11 +112,11 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                       ),
                       _buildOptionCard(
                         icon: Icons.qr_code,
-                        label: 'Scan Qr Code',
+                        label: 'Paste Qr Code',
                         color: Colors.cyan,
                         onPressed: () {
                           // Add your logic for "Export/Import Data" option
-                          Navigator.pushNamed(context, "/teacher/qr",
+                          Navigator.pushNamed(context, "/student/paste-qr-code",
                               arguments: userID);
                         },
                       ),

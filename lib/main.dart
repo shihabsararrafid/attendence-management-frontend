@@ -12,6 +12,7 @@ import 'screens/teacher/attendanceReport.dart';
 import 'screens/student/studentDashboard.dart';
 import 'screens/student/allClasses.dart';
 import 'screens/student/viewAttendance.dart';
+import 'screens/student/pasteQrCode.dart';
 import 'utils/scanQrCode.dart';
 
 void main() {
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget {
         "/teacher/qr": (context) => GenerateAttendanceQrCode(),
         "/student": (context) => StudentDashBoard(),
         "/student/allClasses": (context) => AllClassesStudent(),
-        "/student/view": (context) => ViewAttendanceByStudent()
+        "/student/view": (context) => ViewAttendanceByStudent(),
+        "/student/paste-qr-code": (context) => PasteQrCode()
         // "/capturePhoto": (context) => CameraScreen(),
       },
       title: 'Flutter Demo',
